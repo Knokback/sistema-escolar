@@ -1,85 +1,186 @@
 from flask import Flask, render_template, request, redirect, session
+import sqlite3
 
 app = Flask(__name__)
-app.secret_key = "123"
+app.secret_key = "a8F!29xQ#KlmP@2026"
 
-# Banco simples (memória)
-alunos = []
-presencas = {}
+# =====================================
+# CRIAR BANCO
+# =====================================
+
+def criar_banco():
+
+    conn = sqlite3.connect("escola.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS alunos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        presenca TEXT DEFAULT 'Faltou'
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+criar_banco()
+
+# =====================================
+# LOGIN
+# =====================================
 
 @app.route("/", methods=["GET", "POST"])
 def login():
+
     if request.method == "POST":
+
         user = request.form["user"]
+
         if user:
+
             session["user"] = user
+
             return redirect("/dashboard")
+
     return render_template("login.html")
 
+# =====================================
+# LOGOUT
+# =====================================
+
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    return redirect("/")
+
+# =====================================
+# DASHBOARD
+# =====================================
 
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
+
     if "user" not in session:
         return redirect("/")
 
     resposta_ia = ""
 
+    conn = sqlite3.connect("escola.db")
+    cursor = conn.cursor()
+
+    # =====================================
+    # FORMULÁRIOS
+    # =====================================
+
     if request.method == "POST":
 
-        # Adicionar aluno
+        # ---------------------------------
+        # ADICIONAR ALUNO
+        # ---------------------------------
+
         if "nome" in request.form:
+
             nome = request.form["nome"]
-            if nome and nome not in alunos:
-                alunos.append(nome)
-                presencas[nome] = "Faltou"
 
-        # Marcar presença
+            cursor.execute(
+                "INSERT INTO alunos(nome) VALUES(?)",
+                (nome,)
+            )
+
+            conn.commit()
+
+        # ---------------------------------
+        # MARCAR PRESENÇA
+        # ---------------------------------
+
         if "presenca" in request.form:
-            nome = request.form["presenca"]
-            presencas[nome] = "Presente"
 
-        # Assistente IA melhorado
+            aluno_id = request.form["presenca"]
+
+            cursor.execute(
+                "UPDATE alunos SET presenca='Presente' WHERE id=?",
+                (aluno_id,)
+            )
+
+            conn.commit()
+
+        # ---------------------------------
+        # ASSISTENTE IA
+        # ---------------------------------
+
         if "pergunta" in request.form:
+
             pergunta = request.form["pergunta"].lower()
 
+            cursor.execute("SELECT COUNT(*) FROM alunos")
+
+            total_alunos = cursor.fetchone()[0]
+
             if "quantos alunos" in pergunta:
-                resposta_ia = f"Tem {len(alunos)} alunos cadastrados."
 
-            elif "quem faltou" in pergunta:
-                faltaram = [a for a, p in presencas.items() if p == "Faltou"]
-                resposta_ia = "Faltaram: " + ", ".join(faltaram) if faltaram else "Todos presentes."
-
-            elif "quem está presente" in pergunta:
-                presentes = [a for a, p in presencas.items() if p == "Presente"]
-                resposta_ia = "Presentes: " + ", ".join(presentes) if presentes else "Ninguém presente."
+                resposta_ia = (
+                    f"Tem {total_alunos} alunos cadastrados."
+                )
 
             elif "presença" in pergunta:
-                resposta_ia = str(presencas)
+
+                cursor.execute(
+                    "SELECT nome, presenca FROM alunos"
+                )
+
+                dados = cursor.fetchall()
+
+                resposta_ia = str(dados)
 
             else:
-                resposta_ia = "Posso responder sobre alunos e presença."
 
-    # Dashboard (estatísticas)
+                resposta_ia = "Ainda estou aprendendo..."
+
+    # =====================================
+    # BUSCAR ALUNOS
+    # =====================================
+
+    cursor.execute("SELECT * FROM alunos")
+
+    alunos = cursor.fetchall()
+
+    conn.close()
+
+    # =====================================
+    # ESTATÍSTICAS
+    # =====================================
+
     total = len(alunos)
-    presentes = list(presencas.values()).count("Presente")
+
+    presentes = 0
+
+    for aluno in alunos:
+
+        if aluno[2] == "Presente":
+
+            presentes += 1
+
     faltas = total - presentes
+
+    # =====================================
+    # RENDERIZAR
+    # =====================================
 
     return render_template(
         "dashboard.html",
         alunos=alunos,
-        presencas=presencas,
         resposta_ia=resposta_ia,
         total=total,
         presentes=presentes,
         faltas=faltas
     )
 
-
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/")
-
+# =====================================
+# RUN
+# =====================================
 
 if __name__ == "__main__":
     app.run(debug=True)
