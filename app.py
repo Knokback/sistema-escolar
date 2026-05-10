@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, redirect, session
 import sqlite3
 
 app = Flask(__name__)
+
+print("VERSAO NOVA ATIVA")
+
 app.secret_key = "a8F!29xQ#KlmP@2026"
 
 # =====================================
