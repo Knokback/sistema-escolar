@@ -17,7 +17,8 @@ def criar_banco():
     CREATE TABLE IF NOT EXISTS alunos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
-        presenca TEXT DEFAULT 'Faltou'
+        presenca TEXT DEFAULT 'Faltou',
+        nota REAL DEFAULT 0
     )
     """)
 
@@ -108,6 +109,23 @@ def dashboard():
             conn.commit()
 
         # ---------------------------------
+        # ATUALIZAR NOTA
+        # ---------------------------------
+
+        if "nota" in request.form:
+
+            aluno_id = request.form["aluno_id"]
+
+            nota = request.form["nota"]
+
+            cursor.execute(
+                "UPDATE alunos SET nota=? WHERE id=?",
+                (nota, aluno_id)
+            )
+
+            conn.commit()
+
+        # ---------------------------------
         # ASSISTENTE IA
         # ---------------------------------
 
@@ -135,6 +153,21 @@ def dashboard():
 
                 resposta_ia = str(dados)
 
+            elif "média" in pergunta:
+
+                cursor.execute(
+                    "SELECT AVG(nota) FROM alunos"
+                )
+
+                media = cursor.fetchone()[0]
+
+                if media is None:
+                    media = 0
+
+                resposta_ia = (
+                    f"A média da turma é {media:.1f}"
+                )
+
             else:
 
                 resposta_ia = "Ainda estou aprendendo..."
@@ -157,13 +190,23 @@ def dashboard():
 
     presentes = 0
 
+    soma_notas = 0
+
     for aluno in alunos:
 
         if aluno[2] == "Presente":
 
             presentes += 1
 
+        soma_notas += aluno[3]
+
     faltas = total - presentes
+
+    media_turma = 0
+
+    if total > 0:
+
+        media_turma = soma_notas / total
 
     # =====================================
     # RENDERIZAR
@@ -175,7 +218,8 @@ def dashboard():
         resposta_ia=resposta_ia,
         total=total,
         presentes=presentes,
-        faltas=faltas
+        faltas=faltas,
+        media_turma=round(media_turma, 1)
     )
 
 # =====================================
