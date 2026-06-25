@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="auth-container" style="max-width:400px; margin:80px auto; background:#1a1a1a; padding:20px; border-radius:12px; box-shadow:0 0 15px rgba(255,68,68,0.3);">
+
+    <h2 style="text-align:center; color:#ff4444; margin-bottom:20px;">Criar Conta</h2>
+
+    {% if error %}
+        <div style="color:#ff4444; text-align:center; margin-bottom:15px;">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+
+        <div style="margin-bottom:10px;">
+            <label>Usuário</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <label>Email</label>
+            <input type="email" name="email" required>
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <label>Senha</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <label>Confirmar Senha</label>
+            <input type="password" name="confirm_password" required>
+        </div>
+
+        <button type="submit">
+            Criar Conta
+        </button>
+
+    </form>
+
+    <p style="text-align:center; margin-top:15px;">
+        Já tem conta?
+        <a href="{{ url_for('auth.login') }}">Entrar</a>
+    </p>
+
+</div>
+
+{% endblock %}

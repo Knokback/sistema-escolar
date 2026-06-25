@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>RedCareta 😜</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
+  <style>
+    /* ================= RESET E BASE ================= */
+    body {
+      margin: 0;
+      background: #121212;
+      color: white;
+      font-family: Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    a {
+      text-decoration: none;
+      color: #ff4444;
+    }
+
+    /* ================= CABEÇALHO ================= */
+    #header {
+      display: flex;
+      align-items: center;
+      padding: 20px 40px;
+      background: #1a1a1a;
+      box-shadow: 0 0 10px rgba(255,68,68,0.2);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    #logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 20px;
+    }
+
+    #title {
+      font-size: 40px;
+      font-weight: bold;
+      color: #ff4444;
+    }
+
+    /* ================= CONTEÚDO ================= */
+    main {
+      padding: 140px 40px 20px 40px; /* espaço para o header */
+      min-height: calc(100vh - 120px);
+      overflow-y: auto;
+    }
+
+    /* ================= HUD / MENU RÁPIDO ================= */
+    #hud {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: rgba(20,20,20,0.95);
+      padding: 10px;
+      border-radius: 12px;
+      display: flex;
+      gap: 10px;
+      box-shadow: 0 0 15px rgba(255,68,68,0.3);
+      z-index: 1000;
+    }
+
+    .hud-btn img {
+      width: 40px;
+      height: 40px;
+      transition: 0.2s;
+    }
+
+    .hud-btn img:hover {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 8px #ff4444);
+    }
+
+    /* ================= SCROLL PERSONALIZADO ================= */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1a1a1a;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #ff4444;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ff2222;
+    }
+
+    /* ================= RESPONSIVIDADE ================= */
+    @media (max-width: 768px) {
+      #header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px 20px;
+      }
+
+      #title {
+        font-size: 32px;
+      }
+
+      main {
+        padding: 120px 15px 20px 15px;
+      }
+
+      #hud {
+        bottom: 15px;
+        right: 15px;
+      }
+
+      .hud-btn img {
+        width: 36px;
+        height: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CABEÇALHO -->
+  <div id="header">
+    <img id="logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo">
+    <div id="title">RedCareta 😜</div>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- HUD -->
+  <div id="hud">
+    <a class="hud-btn" href="{{ url_for('home.home') }}">
+      <img src="{{ url_for('static', filename='img/icon-home.png') }}" alt="Home">
+    </a>
+    <a class="hud-btn" href="{{ url_for('chat.chat') }}">
+      <img src="{{ url_for('static', filename='img/icon-chat.png') }}" alt="Chat">
+    </a>
+    <a class="hud-btn" href="{{ url_for('perfil.perfil') }}">
+      <img src="{{ url_for('static', filename='img/icon-perfil.png') }}" alt="Perfil">
+    </a>
+  </div>
+
+</body>
+</html>

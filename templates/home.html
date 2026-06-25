@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RedCareta 😜</title>
+
+<link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
+
+<style>
+
+/* BASE */
+body{
+margin:0;
+background:#121212;
+color:white;
+font-family:Arial;
+overflow-x:hidden;
+}
+
+.glow{
+box-shadow:0 0 12px rgba(255,68,68,0.35);
+border:1px solid rgba(255,68,68,0.25);
+}
+
+/* HEADER */
+header{
+display:flex;
+align-items:center;
+gap:15px;
+padding:8px 20px;
+margin:10px 20px;
+background:#1a1a1a;
+border-radius:12px;
+position:sticky;
+top:0;
+z-index:100;
+}
+
+#logo{
+width:130px;
+}
+
+#welcome{
+color:#ff4444;
+font-size:40px;
+}
+
+/* 🔥 FIX DO TÍTULO */
+#title{
+font-size:50px;
+color:#ff4444;
+font-weight:bold;
+margin-left:20px; /* NÃO empurra o menu */
+}
+
+/* LAYOUT */
+#layout{
+display:flex;
+gap:20px;
+padding:20px;
+align-items:flex-start;
+}
+
+/* 🔥 CHAT GRANDE */
+#sidebar{
+flex:0 0 28%;
+max-width:600px;
+background:#1a1a1a;
+padding:15px;
+border-radius:12px;
+height:calc(85vh - 100px);
+overflow-y:auto;
+}
+
+/* INPUTS */
+textarea,input{
+
+width:87%;
+
+padding:12px;
+
+border:none;
+
+border-radius:8px;
+
+margin-bottom:10px;
+
+}
+
+textarea{
+
+height:80px;
+
+resize:none;
+
+}
+
+button{
+padding:12px 14px;
+background:#ff4444;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+}
+
+/* POSTS */
+.post{
+background:#222;
+padding:12px;
+border-radius:8px;
+margin-bottom:10px;
+}
+
+.post-header{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:5px;
+}
+
+.post-header img{
+width:40px;
+height:40px;
+border-radius:50%;
+object-fit:cover;
+}
+
+.avatar-letter{
+width:40px;
+height:40px;
+border-radius:50%;
+background:#ff4444;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+}
+
+.post-actions{
+display:flex;
+gap:10px;
+margin-top:8px;
+flex-wrap:wrap;
+}
+
+/* 🔥 MEDIA PEQUENA (PAINEL) */
+#media-area{
+display:flex;
+gap:15px;
+flex:1;
+min-width:0; /*impede crescer mais que o layout */
+}
+
+/* 🔥 CAIXAS FIXAS */
+.media-box{
+width:600px;
+height:550px;
+background:#1a1a1a;
+padding:10px;
+border-radius:12px;
+
+display:flex;
+flex-direction:column;
+}
+
+.media-box h2{
+margin:0 0 8px 0;
+color:#ff4444;
+font-size:40px;
+}
+
+/* SCROLL */
+.media-scroll{
+display:flex;
+gap:10px;
+
+overflow-x:auto;
+overflow-y:hidden;
+
+flex-wrap:nowrap;
+}
+
+/* MEDIA */
+.media-scroll img,
+.media-scroll video{
+height:400px;
+border-radius:18px;
+flex-shrink:0;
+}
+
+/* SCROLL VERMELHO */
+::-webkit-scrollbar{
+width:8px;
+height:8px;
+}
+
+::-webkit-scrollbar-track{
+background:#1a1a1a;
+}
+
+::-webkit-scrollbar-thumb{
+background:#ff4444;
+border-radius:10px;
+box-shadow:0 0 10px #ff4444;
+}
+
+/* MENU */
+nav{
+position:fixed;
+top:35px;
+right:50px;
+background:#1a1a1a;
+padding:10px 15px;
+border-radius:12px;
+
+display:flex;
+gap:15px;
+
+opacity:0;
+pointer-events:none;
+transition:0.3s;
+z-index:200;
+}
+
+nav.active{
+opacity:1;
+pointer-events:auto;
+}
+
+nav img{
+width:60px;
+cursor:pointer;
+transition:0.2s;
+}
+
+nav img:hover{
+transform:scale(1.2);
+}
+
+/* 📱 MOBILE */
+@media (max-width:900px){
+body{
+zoom:0.7;
+}
+}
+
+.avatar-img{
+
+width:50px;
+height:50px;
+
+border-radius:50%;
+
+object-fit:cover;
+
+cursor:pointer;
+
+transition:0.2s;
+
+}
+
+.avatar-img:hover{
+
+transform:scale(1.08);
+
+}
+
+#imageModal{
+
+display:none;
+
+position:fixed;
+
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,0.9);
+
+justify-content:center;
+align-items:center;
+
+z-index:9999;
+
+cursor:pointer;
+
+}
+
+#expandedImage{
+
+max-width:90%;
+max-height:90%;
+
+border-radius:12px;
+
+}
+
+.post-image{
+
+border-radius:12px;
+
+cursor:pointer;
+
+transition:0.2s;
+
+}
+
+.post-image:hover{
+
+transform:scale(1.01);
+
+}
+
+video{
+
+border-radius:12px;
+
+}
+
+.gallery-image{
+
+height:400px;
+
+border-radius:18px;
+
+flex-shrink:0;
+
+cursor:pointer;
+
+transition:0.25s;
+
+}
+
+.gallery-image:hover{
+
+transform:scale(1.03);
+
+}
+
+select{
+
+width:95%;
+
+padding:12px;
+
+border:none;
+
+border-radius:8px;
+
+margin-bottom:10px;
+
+background:#222;
+
+color:white;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header class="glow">
+
+<img id="logo" src="{{ url_for('static', filename='img/logo.png') }}">
+
+<div id="welcome">Bem-vindo {{ username }}</div>
+
+<div id="title">
+RedCareta <span id="toggleMenu" style="cursor:pointer;">😜</span>
+</div>
+
+</header>
+
+<div id="layout">
+
+<!-- CHAT / POSTS -->
+<div id="sidebar" class="glow">
+
+<!-- FEED (somente texto) -->
+
+<form
+action="{{ url_for('home.postar_feed') }}"
+method="POST"
+>
+
+<textarea
+name="content"
+placeholder="Escreva algo..."
+required
+></textarea>
+
+<button type="submit">
+Postar
+</button>
+
+</form>
+
+<form
+action="{{ url_for('perfil.pesquisar') }}"
+method="GET"
+>
+
+<button>
+🔍-Pesquisar Usuários.
+</button>
+
+</form>
+
+{% for post in posts %}
+{% if post.tipo == "feed" %}
+
+<div class="post">
+
+    <div class="post-header">
+
+        {% if post.avatar %}
+
+        <img
+        class="avatar-img"
+        src="{{ url_for('static', filename=post.avatar) }}"
+        onclick="abrirImagem(this.src)">
+
+        {% else %}
+
+        <div class="avatar-letter">
+            {{ post.username[0]|upper }}
+        </div>
+
+        {% endif %}
+
+        <a
+        href="{{ url_for('perfil.perfil', user_id=post.user_id) }}"
+        style="color:white;text-decoration:none;">
+
+            <strong>{{ post.username }}</strong>
+
+        </a>
+
+    </div>
+
+    <p>{{ post.content }}</p>
+
+    <div class="post-actions">
+
+        <form class="like-form" data-post-id="{{ post.id }}">
+            <button id="like-{{ post.id }}">
+                ❤️ {{ post.likes_count }}
+            </button>
+        </form>
+
+        {% if post.username == username %}
+
+        <a href="{{ url_for('home.edit', post_id=post.id) }}">
+            <button type="button">✏️</button>
+        </a>
+
+        <form
+        action="{{ url_for('home.delete', post_id=post.id) }}"
+        method="POST">
+
+            <button>🗑</button>
+
+        </form>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endif %}
+{% endfor %}
+
+<div id="loading" style="text-align:center;padding:20px;">
+    Carregando...
+</div>
+
+</div>
+
+<!-- MEDIA -->
+<div id="media-area">
+
+    <!-- IMAGENS -->
+    <div class="media-box glow">
+
+        <h2>Imagens</h2>
+
+        <div class="media-scroll">
+
+            {% for post in posts %}
+            {% if post.tipo == "imagem" %}
+
+            <img
+            src="{{ url_for('static', filename=post.media_path) }}"
+            onclick="abrirImagem(this.src)"
+            class="gallery-image">
+
+            {% endif %}
+            {% endfor %}
+
+        </div>
+
+        <form
+        action="{{ url_for('home.postar_imagem') }}"
+        method="POST"
+        enctype="multipart/form-data">
+
+            <input
+            type="file"
+            name="media"
+            accept=".png,.jpg,.jpeg,.gif,.webp"
+            required>
+
+            <button type="submit">
+                Postar imagem
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- VIDEOS -->
+    <div class="media-box glow">
+
+        <h2>Vídeos</h2>
+
+        <div class="media-scroll">
+
+            {% for post in posts %}
+            {% if post.tipo == "video" %}
+
+            <video controls>
+
+                <source
+                src="{{ url_for('static', filename=post.media_path) }}"
+                type="video/mp4">
+
+            </video>
+
+            {% endif %}
+            {% endfor %}
+
+        </div>
+
+        <form
+        action="{{ url_for('home.postar_video') }}"
+        method="POST"
+        enctype="multipart/form-data">
+
+            <input
+            type="file"
+            name="media"
+            accept=".mp4,.webm,.mov,.avi"
+            required>
+
+            <button type="submit">
+                Postar vídeo
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- MENU -->
+<nav class="glow">
+
+<a href="{{ url_for('home.home') }}">
+<img src="{{ url_for('static', filename='img/icon-home.png') }}">
+</a>
+
+<a href="{{ url_for('chat.chat') }}">
+<img src="{{ url_for('static', filename='img/icon-chat.png') }}">
+</a>
+
+<a href="{{ url_for('tokens.convites') }}">
+<img src="{{ url_for('static', filename='img/icon-convites.png') }}">
+</a>
+
+<a href="{{ url_for('perfil.perfil') }}">
+<img src="{{ url_for('static', filename='img/icon-perfil.png') }}">
+</a>
+
+<a href="{{ url_for('home.notificacoes') }}">
+🔔
+</a>
+
+</nav>
+
+<div id="imageModal" onclick="fecharImagem()">
+
+<img id="expandedImage">
+
+</div>
+
+<script>
+
+const toggle = document.getElementById("toggleMenu");
+const menu = document.querySelector("nav");
+
+let aberto = false;
+
+toggle.onclick = () => {
+
+    aberto = !aberto;
+
+    if (aberto) {
+
+        menu.classList.add("active");
+        toggle.textContent = "😎";
+
+    } else {
+
+        menu.classList.remove("active");
+        toggle.textContent = "😜";
+
+    }
+
+};
+
+
+function abrirImagem(src) {
+
+    document.getElementById(
+        "expandedImage"
+    ).src = src;
+
+    document.getElementById(
+        "imageModal"
+    ).style.display = "flex";
+
+}
+
+
+function fecharImagem() {
+
+    document.getElementById(
+        "imageModal"
+    ).style.display = "none";
+
+}
+
+
+// ===============================
+// SCROLL INFINITO
+// ===============================
+
+let paginaAtual = {{ pagina }};
+let carregando = false;
+
+
+const feed = document.getElementById("sidebar");
+
+feed.addEventListener("scroll", () => {
+
+    console.log("Estou a rolar o feed");
+
+    if (carregando) return;
+
+
+    const fimPagina =
+        feed.scrollTop + feed.clientHeight;
+
+
+    const alturaDocumento =
+        feed.scrollHeight;
+
+
+    if (fimPagina >= alturaDocumento - 200) {
+
+
+        carregando = true;
+
+
+        paginaAtual++;
+
+
+        fetch(`/home/posts_ajax?pagina=${paginaAtual}`)
+
+
+        .then(response => response.text())
+
+
+        .then(html => {
+
+
+            if (html.trim() !== "") {
+
+
+                document
+                    .getElementById("loading")
+                    .insertAdjacentHTML(
+                        "beforebegin",
+                        html
+                    );
+
+
+                carregando = false;
+
+
+            } else {
+
+
+                document
+                    .getElementById("loading")
+                    .innerHTML =
+                    "Fim dos posts";
+
+
+            }
+
+
+        })
+
+
+        .catch(error => {
+
+
+            console.error(
+                "Erro ao carregar posts:",
+                error
+            );
+
+
+            carregando = false;
+
+
+        });
+
+
+    }
+
+});
+
+// ===============================
+// LIKES DINÂMICOS
+// ===============================
+
+document.addEventListener("submit", function(e) {
+
+
+    if (e.target.classList.contains("like-form")) {
+
+
+        e.preventDefault();
+
+
+        const formulario = e.target;
+
+
+        const postId =
+            formulario.dataset.postId;
+
+
+        fetch(`/home/like/${postId}`, {
+
+            method: "POST"
+
+        })
+
+        .then(response => response.json())
+
+        .then(data => {
+
+
+            document
+            .getElementById(`like-${postId}`)
+            .innerHTML =
+            `❤️ ${data.likes}`;
+
+
+        })
+
+        .catch(error => {
+
+
+            console.error(
+                "Erro no like:",
+                error
+            );
+
+
+        });
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>

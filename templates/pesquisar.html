@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+
+
+<h1>Pesquisar</h1>
+
+<form method="GET">
+
+<input
+type="text"
+name="q"
+value="{{ termo }}"
+placeholder="Nome do utilizador"
+>
+
+<button>
+Pesquisar
+</button>
+
+</form>
+
+<hr>
+
+{% for user in resultados %}
+
+<div>
+
+<a href="{{ url_for('perfil.perfil', user_id=user.id) }}">
+
+{% if user.avatar %}
+
+<img
+src="{{ url_for('static', filename=user.avatar) }}"
+width="50"
+>
+
+{% endif %}
+
+{{ user.username }}
+
+</a>
+
+</div>
+
+{% endfor %}

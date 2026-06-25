@@ -1,129 +1,48 @@
-from flask import Flask, render_template, request, redirect, session
-import sqlite3
+<!DOCTYPE html>
+<html lang="pt">
 
-app = Flask(__name__)
-app.secret_key = "a8F!29xQ#KlmP@2026"
+<head>
+    <meta charset="UTF-8">
+    <title>Login - RedCareta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-# =========================
-# CRIAR BANCO
-# =========================
-def criar_banco():
-    conn = sqlite3.connect("escola.db")
-    cursor = conn.cursor()
+</head>
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS alunos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL,
-        presenca TEXT DEFAULT 'Faltou'
-    )
-    """)
+<body>
 
-    conn.commit()
-    conn.close()
+    <h2>Login</h2>
 
-criar_banco()
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
 
-# =========================
-# LOGIN
-# =========================
-@app.route("/", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        user = request.form["user"]
+    <form method="POST" action="{{ url_for('auth.login') }}">
 
-        if user:
-            session["user"] = user
-            return redirect("/dashboard")
+        <input 
+            type="text"
+            name="username"
+            placeholder="Usuário"
+            required
+        >
 
-    return render_template("login.html")
+        <input
+            type="password"
+            name="password"
+            placeholder="Senha"
+            required
+        >
 
-# =========================
-# DASHBOARD
-# =========================
-@app.route("/dashboard", methods=["GET", "POST"])
-def dashboard():
+        <button type="submit">
+            Entrar
+        </button>
 
-    if "user" not in session:
-        return redirect("/")
+    </form>
 
-    resposta_ia = ""
+    <p>
+        Não tem conta?
+        <a href="{{ url_for('auth.register') }}">Registrar</a>
+    </p>
 
-    conn = sqlite3.connect("escola.db")
-    cursor = conn.cursor()
+</body>
 
-    # -------------------------
-    # ADICIONAR ALUNO
-    # -------------------------
-    if request.method == "POST":
-
-        if "nome" in request.form:
-
-            nome = request.form["nome"]
-
-            cursor.execute(
-                "INSERT INTO alunos(nome) VALUES(?)",
-                (nome,)
-            )
-
-            conn.commit()
-
-        # -------------------------
-        # PRESENÇA
-        # -------------------------
-        if "presenca" in request.form:
-
-            aluno_id = request.form["presenca"]
-
-            cursor.execute(
-                "UPDATE alunos SET presenca='Presente' WHERE id=?",
-                (aluno_id,)
-            )
-
-            conn.commit()
-
-        # -------------------------
-        # IA
-        # -------------------------
-        if "pergunta" in request.form:
-
-            pergunta = request.form["pergunta"].lower()
-
-            cursor.execute("SELECT COUNT(*) FROM alunos")
-            total = cursor.fetchone()[0]
-
-            if "quantos alunos" in pergunta:
-                resposta_ia = f"Tem {total} alunos cadastrados."
-
-            elif "presença" in pergunta:
-
-                cursor.execute(
-                    "SELECT nome, presenca FROM alunos"
-                )
-
-                dados = cursor.fetchall()
-
-                resposta_ia = str(dados)
-
-            else:
-                resposta_ia = "Ainda estou aprendendo..."
-
-    # =========================
-    # BUSCAR ALUNOS
-    # =========================
-    cursor.execute("SELECT * FROM alunos")
-    alunos = cursor.fetchall()
-
-    conn.close()
-
-    return render_template(
-        "dashboard.html",
-        alunos=alunos,
-        resposta_ia=resposta_ia
-    )
-
-# =========================
-# RUN
-# =========================
-if __name__ == "__main__":
-    app.run(debug=True)
+</html>

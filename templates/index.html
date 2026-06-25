@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <title>RedCareta 😜</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            background: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* ===== CABEÇALHO ===== */
+
+        #header {
+            position: absolute;
+            top: 20px;
+            left: 40px;
+            right: 460px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        #logo {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
+        }
+
+        #title {
+            margin-left: auto;
+            font-size: 60px;
+            font-weight: bold;
+            color: #ff4444;
+            text-shadow: 2px 2px 8px #000;
+        }
+
+        #careta {
+            font-size: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #careta:hover {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        /* ===== HUD ===== */
+
+        #hud {
+            position: absolute;
+            bottom: 530px;
+            left: 85%;
+            transform: translateX(-50%);
+            display: none;
+            background: rgba(30, 30, 30, 0.9);
+            padding: 8px;
+            border-radius: 12px;
+            gap: 12px;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 25px rgba(255, 68, 68, 0.9);
+            }
+
+            100% {
+                box-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
+            }
+        }
+
+        .hud-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .hud-btn img {
+            width: 45px;
+            height: 45px;
+            filter: brightness(0.9);
+            transition: 0.2s;
+        }
+
+        .hud-btn:hover img {
+            filter: drop-shadow(0 0 8px #ff4444);
+            transform: scale(1.1);
+        }
+
+        /* ===== CONTEÚDO CENTRAL ===== */
+
+        #content {
+            position: absolute;
+            top: 180px;
+            left: 80px;
+            right: 80px;
+            bottom: 80px;
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            color: #ccc;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div id="header">
+        <img id="logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo RedCareta">
+        <div id="title">
+            RedCareta <span id="careta">😜</span>
+        </div>
+    </div>
+
+    <div id="hud">
+
+        <a class="hud-btn" href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='img/icon-home.png') }}" alt="Home">
+        </a>
+
+        <a class="hud-btn" href="{{ url_for('feed') }}">
+            <img src="{{ url_for('static', filename='img/icon-feed.png') }}" alt="Feed">
+        </a>
+
+        <a class="hud-btn" href="{{ url_for('chat') }}">
+            <img src="{{ url_for('static', filename='img/icon-chat.png') }}" alt="Chat">
+        </a>
+
+        <a class="hud-btn" href="{{ url_for('perfil') }}">
+            <img src="{{ url_for('static', filename='img/icon-perfil.png') }}" alt="Perfil">
+        </a>
+
+    </div>
+
+    <div id="content">
+        👋 Bem-vindo à RedCareta!
+    </div>
+
+    <audio id="clickSound" src="{{ url_for('static', filename='sounds/click.mp3') }}"></audio>
+
+    <script>
+
+        const careta = document.getElementById("careta");
+        const hud = document.getElementById("hud");
+        const clickSound = document.getElementById("clickSound");
+
+        let visible = false;
+
+        careta.addEventListener("click", () => {
+
+            visible = !visible;
+
+            if (visible) {
+                hud.style.display = "flex";
+            } else {
+                hud.style.display = "none";
+            }
+
+            clickSound.currentTime = 0;
+            clickSound.play();
+
+        });
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Notificações</title>
+
+<style>
+
+body{
+background:#121212;
+color:white;
+font-family:Arial;
+padding:20px;
+}
+
+.notificacao{
+
+background:#1a1a1a;
+
+padding:15px;
+
+margin-bottom:10px;
+
+border-radius:10px;
+
+}
+
+h1{
+color:#ff4444;
+}
+
+a{
+color:#ff4444;
+text-decoration:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>🔔 Notificações</h1>
+
+{% for n in notificacoes %}
+
+<div class="notificacao">
+
+{{ n.message }}
+
+<br><br>
+
+<small>
+{{ n.created_at }}
+</small>
+
+</div>
+
+{% else %}
+
+<p>
+Nenhuma notificação.
+</p>
+
+{% endfor %}
+
+<br>
+
+<a href="{{ url_for('home.home') }}">
+← Voltar
+</a>
+
+</body>
+
+</html>

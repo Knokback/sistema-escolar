@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+
+<meta charset="UTF-8">
+
+<title>Conexões</title>
+
+<style>
+
+body{
+background:#121212;
+color:white;
+font-family:Arial;
+padding:20px;
+}
+
+.card{
+background:#1e1e1e;
+padding:15px;
+margin-bottom:15px;
+border-radius:12px;
+
+display:flex;
+align-items:center;
+gap:15px;
+}
+
+img{
+width:70px;
+height:70px;
+border-radius:50%;
+object-fit:cover;
+}
+
+.avatar{
+width:70px;
+height:70px;
+border-radius:50%;
+background:#ff4444;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:28px;
+font-weight:bold;
+}
+
+a{
+color:#ff4444;
+text-decoration:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Minhas Conexões</h1>
+
+{% for user in conexoes %}
+
+<div class="card">
+
+{% if user.avatar %}
+
+<a href="{{ url_for('perfil.perfil', user_id=user.id) }}">
+
+<img
+src="{{ url_for('static', filename=user.avatar) }}"
+>
+
+</a>
+
+{% else %}
+
+<a href="{{ url_for('perfil.perfil', user_id=user.id) }}">
+
+<div class="avatar">
+{{ user.username[0]|upper }}
+</div>
+
+</a>
+
+{% endif %}
+
+<div>
+
+<h2>
+
+<a href="{{ url_for('perfil.perfil', user_id=user.id) }}">
+@{{ user.username }}
+</a>
+
+</h2>
+
+<p>{{ user.bio or '' }}</p>
+
+</div>
+
+</div>
+
+{% else %}
+
+<p>Nenhuma conexão ainda.</p>
+
+{% endfor %}
+
+</body>
+</html>

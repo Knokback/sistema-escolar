@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Convites</title>
+
+<style>
+
+body{
+background:#121212;
+color:white;
+font-family:Arial;
+padding:20px;
+}
+
+.card{
+background:#1a1a1a;
+padding:20px;
+border-radius:12px;
+margin-bottom:15px;
+}
+
+button{
+padding:10px 15px;
+border:none;
+border-radius:8px;
+background:#ff4444;
+color:white;
+cursor:pointer;
+}
+
+a{
+color:#ff4444;
+text-decoration:none;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>Convites Recebidos</h1>
+
+{% for convite in convites %}
+
+<div class="card">
+
+<h2>
+
+<a href="{{ url_for('perfil.perfil', user_id=convite.sender_id) }}">
+@{{ convite.username }}
+</a>
+
+</h2>
+
+<p>RCID: {{ convite.rcid }}</p>
+
+<form
+action="{{ url_for('tokens.aceitar', convite_id=convite.id) }}"
+method="POST"
+>
+
+<button type="submit">
+Aceitar convite
+</button>
+
+</form>
+
+</div>
+
+{% else %}
+
+<p>Nenhum convite recebido.</p>
+
+{% endfor %}
+
+</body>
+</html>

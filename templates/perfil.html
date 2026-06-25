@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Perfil - RedCareta 😜</title>
+
+<link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
+
+<style>
+
+body{
+margin:0;
+background:#121212;
+color:white;
+font-family:Arial, sans-serif;
+display:flex;
+justify-content:center;
+padding:20px;
+overflow-x:hidden;
+}
+
+/* ================= PERFIL ================= */
+
+#perfil{
+
+width:900px;
+max-width:95%;
+
+background:#1a1a1a;
+
+border-radius:20px;
+
+box-shadow:0 0 18px rgba(255,0,0,0.25);
+
+padding:25px;
+
+display:grid;
+
+grid-template-columns:200px 1fr;
+
+grid-template-rows:auto auto auto;
+
+gap:15px;
+
+margin-bottom:25px;
+
+}
+
+/* ================= FORM ================= */
+
+form{
+
+grid-column:1 / span 2;
+
+display:flex;
+flex-direction:column;
+gap:20px;
+
+}
+
+/* ================= AVATAR ================= */
+
+#avatar-area{
+
+grid-column:1;
+grid-row:1;
+
+display:flex;
+
+flex-direction:column;
+
+align-items:center;
+
+gap:10px;
+
+}
+
+#avatar-container{
+
+width:160px;
+height:160px;
+
+position:relative;
+
+}
+
+#avatar-container img,
+#avatar-container .avatar-default{
+
+width:100%;
+height:100%;
+
+border-radius:50%;
+
+object-fit:cover;
+
+display:flex;
+
+align-items:center;
+justify-content:center;
+
+font-size:60px;
+
+background:#ff4444;
+
+color:white;
+
+font-weight:bold;
+
+box-shadow:0 0 20px rgba(255,68,68,0.4);
+
+}
+
+#avatar-label{
+
+position:absolute;
+
+bottom:-10px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+padding:5px 12px;
+
+background:#ff4444;
+
+border-radius:20px;
+
+font-size:12px;
+
+cursor:pointer;
+
+transition:0.2s;
+
+}
+
+#avatar-label:hover{
+
+background:#ff6666;
+
+}
+
+#avatar-input{
+display:none;
+}
+
+#username{
+
+color:#ff4444;
+
+font-size:22px;
+
+font-weight:bold;
+
+text-align:center;
+
+}
+
+#rcid{
+
+opacity:0.7;
+
+font-size:14px;
+
+}
+
+/* ================= STATS ================= */
+
+#stats{
+
+grid-column:2;
+grid-row:1;
+
+background:#222;
+
+border-radius:16px;
+
+padding:20px;
+
+display:flex;
+
+justify-content:space-around;
+
+align-items:center;
+
+text-align:center;
+
+}
+
+.stat b{
+
+display:block;
+
+font-size:28px;
+
+color:#ff4444;
+
+}
+
+/* ================= BIO ================= */
+
+#bio-box{
+
+grid-column:2;
+grid-row:2;
+
+background:#222;
+
+border-radius:16px;
+
+padding:20px;
+
+}
+
+#bio-box h3{
+
+margin-top:0;
+color:#ff4444;
+
+}
+
+#bio-box textarea{
+
+width:100%;
+
+height:90px;
+
+padding:12px;
+
+border:none;
+
+border-radius:8px;
+
+background:#333;
+
+color:white;
+
+resize:none;
+
+box-sizing:border-box;
+
+font-size:15px;
+
+}
+
+/* ================= INFO ================= */
+
+#info-box{
+
+grid-column:1 / span 2;
+
+background:#222;
+
+border-radius:16px;
+
+padding:20px;
+
+}
+
+#info-box h3{
+
+margin-top:0;
+
+color:#ff4444;
+
+}
+
+.info-grid{
+
+display:grid;
+
+grid-template-columns:2fr 1fr;
+
+gap:15px;
+
+margin-bottom:15px;
+
+}
+
+.row2{
+
+display:grid;
+
+grid-template-columns:1fr 2fr;
+
+gap:15px;
+
+margin-bottom:15px;
+
+}
+
+.row3{
+
+display:grid;
+
+grid-template-columns:1fr;
+
+}
+
+#info-box input{
+
+width:100%;
+
+padding:12px;
+
+border:none;
+
+border-radius:8px;
+
+background:#333;
+
+color:white;
+
+box-sizing:border-box;
+
+font-size:15px;
+
+}
+
+/* ================= BUTTONS ================= */
+
+#actions{
+
+display:flex;
+
+gap:15px;
+
+margin-top:10px;
+
+}
+
+button{
+
+flex:1;
+
+padding:12px;
+
+border:none;
+
+border-radius:8px;
+
+background:#ff4444;
+
+color:white;
+
+font-weight:bold;
+
+cursor:pointer;
+
+transition:0.2s;
+
+}
+
+button:hover{
+
+background:#ff6666;
+
+}
+
+.back-btn{
+
+flex:1;
+
+text-decoration:none;
+
+text-align:center;
+
+padding:12px;
+
+border-radius:8px;
+
+background:#333;
+
+color:#ff4444;
+
+font-weight:bold;
+
+transition:0.2s;
+
+}
+
+.back-btn:hover{
+
+background:#444;
+
+}
+
+/* ================= CONVITE ================= */
+
+#invite-area{
+
+grid-column:1 / span 2;
+
+}
+
+#invite-btn{
+
+width:100%;
+
+}
+
+/* ================= RESPONSIVO ================= */
+
+@media (max-width:768px){
+
+#perfil{
+
+grid-template-columns:1fr;
+
+padding:18px;
+
+}
+
+#avatar-area{
+
+grid-column:1;
+grid-row:1;
+
+}
+
+#stats{
+
+grid-column:1;
+grid-row:2;
+
+flex-direction:row;
+
+padding:15px;
+
+}
+
+#bio-box{
+
+grid-column:1;
+grid-row:3;
+
+}
+
+#info-box{
+
+grid-column:1;
+grid-row:4;
+
+}
+
+.info-grid,
+.row2{
+
+grid-template-columns:1fr;
+
+}
+
+#actions{
+
+flex-direction:column;
+
+}
+
+#avatar-container{
+
+width:130px;
+height:130px;
+
+}
+
+#username{
+
+font-size:20px;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="perfil">
+
+<form method="POST" enctype="multipart/form-data">
+
+<!-- ================= AVATAR ================= -->
+
+<div id="avatar-area">
+
+<div id="avatar-container">
+
+{% if user.avatar %}
+
+<img src="{{ url_for('static', filename=user.avatar) }}">
+
+{% else %}
+
+<div class="avatar-default">
+{{ user.username[0]|upper }}
+</div>
+
+{% endif %}
+
+{% if perfil_id == session["user_id"] %}
+
+<label id="avatar-label" for="avatar-input">
+Alterar foto
+</label>
+
+<input id="avatar-input" type="file" name="avatar">
+
+{% endif %}
+
+</div>
+
+<div id="username">
+@{{ user.username }}
+</div>
+
+<div id="rcid">
+{{ user.rcid }}
+</div>
+
+</div>
+
+<!-- ================= STATS ================= -->
+
+<div id="stats">
+
+<div class="stat">
+<b>{{ total_posts }}</b>
+Posts
+</div>
+
+<div class="stat">
+<b>{{ total_images }}</b>
+Imagens
+</div>
+
+<div class="stat">
+<b>{{ total_videos }}</b>
+Vídeos
+</div>
+
+<p>
+Seguidores: {{ seguidores }}
+</p>
+
+<p>
+Seguindo: {{ seguindo }}
+</p>
+
+</div>
+
+<!-- ================= BIO ================= -->
+
+<div id="bio-box">
+
+<h3>Bio</h3>
+
+{% if perfil_id == session["user_id"] %}
+
+<textarea name="bio">{{ user.bio or '' }}</textarea>
+
+{% else %}
+
+<p>{{ user.bio or "Sem bio ainda." }}</p>
+
+{% endif %}
+
+</div>
+
+<!-- ================= INFO ================= -->
+
+<div id="info-box">
+
+<h3>Informações Pessoais</h3>
+
+{% if perfil_id == session["user_id"] %}
+
+<div class="info-grid">
+
+<input
+name="username"
+type="text"
+placeholder="Nome completo"
+value="{{ user.username or '' }}"
+>
+
+<input
+name="nickname"
+type="text"
+placeholder="Apelido"
+value="{{ user.nickname or '' }}"
+>
+
+</div>
+
+<div class="row2">
+
+<input
+name="age"
+type="number"
+placeholder="Idade"
+value="{{ user.age or '' }}"
+>
+
+<input
+name="location"
+type="text"
+placeholder="Localização"
+value="{{ user.location or '' }}"
+>
+
+</div>
+
+<div class="row3">
+
+<input
+name="status"
+type="text"
+placeholder="Status"
+value="{{ user.status or '' }}"
+>
+
+</div>
+
+{% else %}
+
+<p><b>Apelido:</b> {{ user.nickname or "Não definido" }}</p>
+
+<p><b>Idade:</b> {{ user.age or "Não definida" }}</p>
+
+<p><b>Localização:</b> {{ user.location or "Não definida" }}</p>
+
+<p><b>Status:</b> {{ user.status or "Sem status" }}</p>
+
+{% endif %}
+
+</div>
+
+
+<a href="{{ url_for('tokens.conexoes') }}">
+<button type="button">
+Minhas conexões
+</button>
+</a>
+
+<!-- ================= ACTIONS ================= -->
+
+{% if perfil_id == session["user_id"] %}
+
+<div id="actions">
+
+<button type="submit">
+Salvar Perfil
+</button>
+
+<a class="back-btn" href="{{ url_for('home.home') }}">
+Voltar
+</a>
+
+</div>
+
+{% else %}
+
+<div id="actions">
+
+<a class="back-btn" href="{{ url_for('home.home') }}">
+Voltar
+</a>
+
+</div>
+
+</form>
+
+{% if perfil_id != session["user_id"] %}
+
+    {% if not connection %}
+
+        <form
+        action="{{ url_for('tokens.enviar_convite', user_id=user.id) }}"
+        method="POST"
+        >
+
+        <button type="submit">
+        Enviar Convite
+        </button>
+
+        </form>
+
+    {% elif connection_status == "pendente" %}
+
+        <button disabled>
+            Convite pendente
+        </button>
+
+    {% elif connection_status == "ativo" %}
+
+        <button disabled>
+            Já conectados
+        </button>
+
+        <form
+        action="{{ url_for('tokens.remover', user_id=perfil_id) }}"
+        method="POST"
+        >
+
+        <button type="submit">
+
+        Remover conexão
+
+        </button>
+
+        </form>
+
+    {% endif %}
+
+{% endif %}
+
+{% endif %}
+
+</form>
+
+{% if user.id != session["user_id"] %}
+
+    {% if ja_segue %}
+
+    <form
+    action="{{ url_for('perfil.deixar_seguir', user_id=user.id) }}"
+    method="POST">
+
+        <button>
+        Deixar de seguir
+        </button>
+
+    </form>
+
+    {% else %}
+
+    <form
+    action="{{ url_for('perfil.seguir', user_id=user.id) }}"
+    method="POST">
+
+        <button>
+        Seguir
+        </button>
+
+    </form>
+
+    {% endif %}
+
+{% endif %}
+
+</div>
+
+</body>
+</html>
