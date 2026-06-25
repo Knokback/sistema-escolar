@@ -1,239 +1,141 @@
-from flask import Flask, render_template, request, redirect, session
+import os
 import sqlite3
+from flask import Flask, render_template, session, redirect, url_for
+from database import init_db
+
+from modules.auth import auth_bp
+from modules.home import home_bp
+from modules.chat import chat_bp
+from modules.perfil import perfil_bp
+from modules.tokens import tokens_bp
+from modules.search import search_bp
 
 app = Flask(__name__)
-app.secret_key = "123456"
 
-print("🔥 SISTEMA ESCOLAR LOCAL FUNCIONANDO 🔥")
+app.secret_key = "redcareta-secret-key"
 
-BANCO = "escola_local.db"
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-# =========================================
-# CRIAR BANCO
-# =========================================
+app.config["DATABASE"] = os.path.join(BASE_DIR, "database.db")
+app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "static", "uploads")
+app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024
 
-def criar_banco():
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
-    conn = sqlite3.connect(BANCO)
 
-    cursor = conn.cursor()
+def get_db_connection():
+    conn = sqlite3.connect(app.config["DATABASE"])
+    conn.row_factory = sqlite3.Row
+    return conn
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS alunos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL,
-        presenca TEXT DEFAULT 'Faltou',
-        nota REAL DEFAULT 0
-    )
-    """)
 
-    conn.commit()
-    conn.close()
+# ==============================
+# BLUEPRINTS
+# ==============================
 
-criar_banco()
+app.register_blueprint(auth_bp)
+app.register_blueprint(home_bp)
+app.register_blueprint(chat_bp)
+app.register_blueprint(perfil_bp)
+app.register_blueprint(tokens_bp)
+app.register_blueprint(search_bp)
 
-# =========================================
-# LOGIN
-# =========================================
+# ==============================
+# ROTAS
+# ==============================
 
-@app.route("/", methods=["GET", "POST"])
-def login():
-
-    if request.method == "POST":
-
-        user = request.form["user"]
-
-        if user:
-
-            session["user"] = user
-
-            return redirect("/dashboard")
-
+@app.route("/")
+def index():
     return render_template("login.html")
 
-# =========================================
-# LOGOUT
-# =========================================
 
-@app.route("/logout")
-def logout():
+@app.route("/feed_private")
+def feed_private():
 
-    session.clear()
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
 
-    return redirect("/")
+    user_id = session["user_id"]
 
-# =========================================
-# DASHBOARD
-# =========================================
+    conn = get_db_connection()
 
-@app.route("/dashboard", methods=["GET", "POST"])
-def dashboard():
+    connections = conn.execute("""
 
-    if "user" not in session:
-        return redirect("/")
+    SELECT
+        sender_id,
+        receiver_id
 
-    resposta_ia = ""
+    FROM connections
 
-    conn = sqlite3.connect(BANCO)
+    WHERE
+    (
+        sender_id = ?
+        OR
+        receiver_id = ?
+    )
 
-    cursor = conn.cursor()
+    AND status = 'ativo'
 
-    # =====================================
-    # FORMULÁRIOS
-    # =====================================
+    """, (
 
-    if request.method == "POST":
+        user_id,
+        user_id
 
-        # -------------------------
-        # ADICIONAR ALUNO
-        # -------------------------
+    )).fetchall()
 
-        if "nome" in request.form:
+    friend_ids = []
 
-            nome = request.form["nome"]
+    for c in connections:
 
-            cursor.execute(
-                "INSERT INTO alunos(nome) VALUES(?)",
-                (nome,)
-            )
+        if c["sender_id"] == user_id:
+            friend_ids.append(c["receiver_id"])
 
-            conn.commit()
+        else:
+            friend_ids.append(c["sender_id"])
+    friend_ids.append(user_id)
 
-        # -------------------------
-        # MARCAR PRESENÇA
-        # -------------------------
+    if not friend_ids:
+        friend_ids = [user_id]
 
-        if "presenca" in request.form:
+    placeholders = ",".join("?" * len(friend_ids))
 
-            aluno_id = request.form["presenca"]
+    posts = conn.execute(f"""
 
-            cursor.execute(
-                "UPDATE alunos SET presenca='Presente' WHERE id=?",
-                (aluno_id,)
-            )
+    SELECT
+        posts.*,
+        users.username,
+        users.avatar
 
-            conn.commit()
+    FROM posts
 
-        # -------------------------
-        # SALVAR NOTA
-        # -------------------------
+    JOIN users
+    ON posts.user_id = users.id
 
-        if "nota" in request.form:
+    WHERE posts.user_id IN ({placeholders})
 
-            aluno_id = request.form["aluno_id"]
+    ORDER BY posts.created_at DESC
 
-            nota = request.form["nota"]
-
-            cursor.execute(
-                "UPDATE alunos SET nota=? WHERE id=?",
-                (nota, aluno_id)
-            )
-
-            conn.commit()
-
-        # -------------------------
-        # IA
-        # -------------------------
-
-        if "pergunta" in request.form:
-
-            pergunta = request.form["pergunta"].lower()
-
-            # QUANTOS ALUNOS
-
-            if "quantos alunos" in pergunta:
-
-                cursor.execute(
-                    "SELECT COUNT(*) FROM alunos"
-                )
-
-                total = cursor.fetchone()[0]
-
-                resposta_ia = (
-                    f"Tem {total} alunos cadastrados."
-                )
-
-            # PRESENÇA
-
-            elif "presença" in pergunta or "presenca" in pergunta:
-
-                cursor.execute(
-                    "SELECT nome, presenca FROM alunos"
-                )
-
-                dados = cursor.fetchall()
-
-                resposta_ia = str(dados)
-
-            # MÉDIA
-
-            elif "média" in pergunta or "media" in pergunta:
-
-                cursor.execute(
-                    "SELECT AVG(nota) FROM alunos"
-                )
-
-                media = cursor.fetchone()[0]
-
-                if media is None:
-                    media = 0
-
-                resposta_ia = (
-                    f"A média da turma é {media:.1f}"
-                )
-
-            else:
-
-                resposta_ia = "Ainda estou aprendendo..."
-
-    # =====================================
-    # BUSCAR ALUNOS
-    # =====================================
-
-    cursor.execute("SELECT * FROM alunos")
-
-    alunos = cursor.fetchall()
+    """, friend_ids).fetchall()
 
     conn.close()
 
-    # =====================================
-    # ESTATÍSTICAS
-    # =====================================
+    return render_template("feed_private.html", posts=posts)
 
-    total = len(alunos)
-
-    presentes = 0
-
-    soma_notas = 0
-
-    for aluno in alunos:
-
-        if aluno[2] == "Presente":
-            presentes += 1
-
-        soma_notas += aluno[3]
-
-    faltas = total - presentes
-
-    media_turma = 0
-
-    if total > 0:
-        media_turma = soma_notas / total
+@app.errorhandler(413)
+def arquivo_grande(e):
 
     return render_template(
-        "dashboard.html",
-        alunos=alunos,
-        resposta_ia=resposta_ia,
-        total=total,
-        presentes=presentes,
-        faltas=faltas,
-        media_turma=round(media_turma, 1)
-    )
+        "erro413.html"
+    ), 413
 
-# =========================================
-# RUN
-# =========================================
+# ==============================
+# EXECUÇÃO
+# ==============================
 
 if __name__ == "__main__":
+    from werkzeug.serving import is_running_from_reloader
 
-    app.run(debug=True)
+    if not is_running_from_reloader():
+        init_db()
+
+    app.run(host="0.0.0.0", port=5000, debug=True)
